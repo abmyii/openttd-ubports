@@ -71,7 +71,7 @@
 #include <system_error>
 
 #include "safeguards.h"
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <unistd.h>
 #include <SDL_android.h>
 #endif
@@ -914,7 +914,7 @@ exit_bootstrap:
 exit_normal:
 
 	if (_restart_game) {
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 		// This makes OpenTTD reset all it's settings for some reason, because the process is not killed and shared libraries are not unloaded.
 		exit(0);
 #endif
@@ -1188,7 +1188,7 @@ void SwitchToMode(SwitchMode new_mode)
 				ShowErrorMessage(STR_JUST_RAW_STRING, INVALID_STRING_ID, WL_ERROR);
 			} else {
 				DeleteWindowById(WC_SAVELOAD, 0);
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 				if (_settings_client.gui.save_to_network) {
 					char screenshotFile[PATH_MAX] = "";
 					const char* lastPart = strrchr(_file_to_saveload.name, PATHSEPCHAR);

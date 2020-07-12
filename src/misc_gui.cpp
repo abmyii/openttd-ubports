@@ -33,7 +33,7 @@
 
 #include "safeguards.h"
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <SDL_screenkeyboard.h>
 #endif
 
@@ -797,7 +797,7 @@ void QueryString::HandleEditBox(Window *w, int wid)
 		/* For the OSK also invalidate the parent window */
 		if (w->window_class == WC_OSK) w->InvalidateData();
 	}
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	if (SDL_IsScreenKeyboardShown(NULL)) {
 		if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
 			this->text.Assign(_android_text_input);
@@ -988,7 +988,7 @@ void QueryString::ClickEditBox(Window *w, Point pt, int wid, int click_count, bo
 		/* Open the OSK window */
 		ShowOnScreenKeyboard(w, wid);
 	}
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	strecpy(_android_text_input, this->text.buf, lastof(_android_text_input));
 	this->text.DeleteAll();
 	SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input));

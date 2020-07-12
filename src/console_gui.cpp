@@ -28,7 +28,7 @@
 
 #include "safeguards.h"
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <SDL_screenkeyboard.h>
 #endif
 
@@ -448,7 +448,7 @@ void IConsoleSwitch()
 {
 	switch (_iconsole_mode) {
 		case ICONSOLE_CLOSED:
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 			{
 				char buf[1024] = "";
 				for (const IConsoleLine *print = IConsoleLine::Get(0); print != NULL; print = print->previous) {

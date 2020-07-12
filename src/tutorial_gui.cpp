@@ -14,7 +14,7 @@
 
 #include "stdafx.h"
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <SDL_android.h>
 #endif
 
@@ -89,7 +89,7 @@ void OpenExternTutorialVideo(VideoLink_t *tutorial)
 	if (!link) {
 		return;
 	}
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	SDL_ANDROID_OpenExternalWebBrowser(link);
 #else
 	char cmd[PATH_MAX] =

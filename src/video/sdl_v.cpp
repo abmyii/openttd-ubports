@@ -29,7 +29,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <algorithm>
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <SDL_screenkeyboard.h>
 #include <SDL_android.h>
 #endif
@@ -162,7 +162,7 @@ static void DrawSurfaceToScreen()
 	PerformanceMeasurer framerate(PFE_VIDEO);
 
 	int n = _num_dirty_rects;
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	if (n == 0 && !_left_button_down) return; // We have to update the screen regularly to receive mouse_up event on Android
 #else
 	if (n == 0) return;
@@ -240,7 +240,7 @@ static void GetVideoModes()
 			_resolutions.emplace_back(w, h);
 		}
 		if (_resolutions.empty()) usererror("No usable screen resolutions found!\n");
-#if !defined(__ANDROID__) // Android has native screen sizes first, do not sort them
+#if !defined(__UBPORTS__) // Android has native screen sizes first, do not sort them
 		SortResolutions();
 #endif
 	}
@@ -416,7 +416,7 @@ bool VideoDriver_SDL::CreateMainSurface(uint w, uint h)
 
 	GameSizeChanged();
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	if (!_multitouch_device) {
 		SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 		_multitouch_device = SDL_JoystickOpen(0);
@@ -520,7 +520,7 @@ static uint ConvertSdlKeyIntoMy(SDL_keysym *sym, WChar *character)
 	if (sym->scancode == 49) key = WKC_BACKSPACE;
 #elif defined(__sgi__)
 	if (sym->scancode == 22) key = WKC_BACKQUOTE;
-#elif defined(__ANDROID__)
+#elif defined(__UBPORTS__)
 	if (sym->scancode == SDLK_BACKQUOTE) key = WKC_BACKQUOTE;
 #else
 	if (sym->scancode == 49) key = WKC_BACKQUOTE;
@@ -545,7 +545,7 @@ int VideoDriver_SDL::PollEvent()
 	switch (ev.type) {
 		case SDL_MOUSEMOTION:
 			if (_cursor.UpdateCursorPosition(ev.motion.x, ev.motion.y, true)) {
-#ifndef __ANDROID__ // No mouse warping on Android, mouse strictly follows finger
+#ifndef __UBPORTS__ // No mouse warping on Android, mouse strictly follows finger
 				SDL_WarpMouse(_cursor.pos.x, _cursor.pos.y);
 #endif
 			}
@@ -569,7 +569,7 @@ int VideoDriver_SDL::PollEvent()
 					_right_button_down_pos.y = ev.motion.y;
 					break;
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 				case SDL_BUTTON_WHEELUP:
 				case SDL_BUTTON_WHEELDOWN:
 					_cursor.wheel += (ev.button.button == SDL_BUTTON_WHEELDOWN) ? 1 : -1;
@@ -603,7 +603,7 @@ int VideoDriver_SDL::PollEvent()
 			}
 			HandleMouseEvents();
 			break;
-#ifndef __ANDROID__
+#ifndef __UBPORTS__
 		case SDL_ACTIVEEVENT:
 			if (!(ev.active.state & SDL_APPMOUSEFOCUS)) break;
 
@@ -614,7 +614,7 @@ int VideoDriver_SDL::PollEvent()
 				_cursor.in_window = false;
 			}
 			break;
-#endif /* not __ANDROID__ */
+#endif /* not __UBPORTS__ */
 		case SDL_QUIT:
 			HandleExitGameRequest();
 			break;
@@ -627,7 +627,7 @@ int VideoDriver_SDL::PollEvent()
 				WChar character;
 				uint keycode = ConvertSdlKeyIntoMy(&ev.key.keysym, &character);
 				HandleKeypress(keycode, character);
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 				if (ev.key.keysym.sym == SDLK_LCTRL || ev.key.keysym.sym == SDLK_RCTRL) {
 					_ctrl_pressed = true;
 				}
@@ -638,7 +638,7 @@ int VideoDriver_SDL::PollEvent()
 			}
 			break;
 		case SDL_KEYUP:
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 			if (ev.key.keysym.sym == SDLK_LCTRL || ev.key.keysym.sym == SDLK_RCTRL) {
 				_ctrl_pressed = false;
 			}
@@ -647,22 +647,22 @@ int VideoDriver_SDL::PollEvent()
 			}
 #endif
 			break;
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 		case SDL_JOYBALLMOTION:
 			if (ev.jball.which == 0 && ev.jball.ball == 1) {
 				_multitouch_second_point.x = ev.jball.xrel;
 				_multitouch_second_point.y = ev.jball.yrel;
 			}
 			break;
-#endif /* not __ANDROID__ */
-#ifndef __ANDROID__
+#endif /* not __UBPORTS__ */
+#ifndef __UBPORTS__
 		case SDL_VIDEORESIZE: {
 			int w = max(ev.resize.w, 64);
 			int h = max(ev.resize.h, 64);
 			CreateMainSurface(w, h);
 			break;
 		}
-#endif /* not __ANDROID__ */
+#endif /* not __UBPORTS__ */
 		case SDL_VIDEOEXPOSE: {
 			/* Force a redraw of the entire screen. Note
 			 * that SDL 1.2 seems to do this automatically
@@ -702,7 +702,7 @@ const char *VideoDriver_SDL::Start(const char * const *parm)
 	SetupKeyboard();
 
 	_draw_threaded = GetDriverParam(parm, "no_threads") == nullptr && GetDriverParam(parm, "no_thread") == nullptr;
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	_draw_threaded = false;
 #endif
 
@@ -804,7 +804,7 @@ void VideoDriver_SDL::MainLoop()
 
 			bool old_ctrl_pressed = _ctrl_pressed;
 
-#ifndef __ANDROID__
+#ifndef __UBPORTS__
 			_ctrl_pressed  = !!(mod & KMOD_CTRL);
 			_shift_pressed = !!(mod & KMOD_SHIFT);
 #endif

@@ -45,7 +45,7 @@ static struct {
 	uint32 song_position;
 } _midi; ///< Metadata about the midi we're playing.
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 /* Android does not have Midi chip, we have to route the libtimidity output through SDL audio output */
 void Android_MidiMixMusic(Sint16 *stream, int len)
 {
@@ -62,7 +62,7 @@ void Android_MidiMixMusic(Sint16 *stream, int len)
 		}
 	}
 }
-#endif /* __ANDROID__ */
+#endif /* __UBPORTS__ */
 
 /** Factory for the libtimidity driver. */
 static FMusicDriver_LibTimidity iFMusicDriver_LibTimidity;

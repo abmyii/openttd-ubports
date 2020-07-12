@@ -20,7 +20,7 @@
 /** Factory for the SDL sound driver. */
 static FSoundDriver_SDL iFSoundDriver_SDL;
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 extern void Android_MidiMixMusic(Sint16 *stream, int len);
 #endif
 
@@ -33,7 +33,7 @@ extern void Android_MidiMixMusic(Sint16 *stream, int len);
 static void CDECL fill_sound_buffer(void *userdata, Uint8 *stream, int len)
 {
 	MxMixSamples(stream, len / 4);
-#if defined(__ANDROID__) && defined(LIBTIMIDITY)
+#if defined(__UBPORTS__) && defined(LIBTIMIDITY)
 	Android_MidiMixMusic((Sint16 *)stream, len / 2);
 #endif
 }

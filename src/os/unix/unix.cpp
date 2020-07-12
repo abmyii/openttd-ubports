@@ -26,7 +26,7 @@
 
 #ifdef __APPLE__
 	#include <sys/mount.h>
-#elif ((defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L) || defined(__GLIBC__)) && !defined(__ANDROID__)
+#elif ((defined(_POSIX_VERSION) && _POSIX_VERSION >= 200112L) || defined(__GLIBC__)) && !defined(__UBPORTS__)
 	#define HAS_STATVFS
 #endif
 
@@ -55,7 +55,7 @@
 #	include "../macosx/macos.h"
 #endif
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	#include "android/log.h"
 #endif
 
@@ -225,7 +225,7 @@ void ShowInfo(const char *str)
 #if !defined(__APPLE__)
 void ShowOSErrorBox(const char *buf, bool system)
 {
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	__android_log_print(ANDROID_LOG_FATAL, "OpenTTD", "[ERROR] %s", buf);
 #endif
 	/* All unix systems, except OSX. Only use escape codes on a TTY. */
@@ -242,7 +242,7 @@ void cocoaSetupAutoreleasePool();
 void cocoaReleaseAutoreleasePool();
 #endif
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #define main SDL_main
 extern "C" int CDECL main(int, char *[]);
 #endif
@@ -289,7 +289,7 @@ void OSOpenBrowser(const char *url)
 	pid_t child_pid = fork();
 	if (child_pid != 0) return;
 
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 	const char *args[9];
 	args[0] = "/system/bin/am";
 	args[1] = "start";

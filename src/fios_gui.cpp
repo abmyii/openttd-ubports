@@ -34,7 +34,7 @@
 #include "table/strings.h"
 
 #include "safeguards.h"
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 #include <SDL_android.h>
 #endif
 
@@ -732,7 +732,7 @@ public:
 			case WID_SL_LOAD_NETWORK_BUTTON: {
 					char savePath[PATH_MAX];
 					FiosMakeSavegameName(savePath, NETWORK_SAVE_FILENAME, lastof(savePath));
-#ifdef __ANDROID__
+#ifdef __UBPORTS__
 					if (!SDL_ANDROID_CloudLoad(savePath, NULL, "OpenTTD")) {
 						break;
 					}
