@@ -631,7 +631,9 @@ const char *VideoDriver_SDL::Start(const char * const *parm)
 	/* Explicitly disable hardware acceleration. Enabling this causes
 	 * UpdateWindowSurface() to update the window's texture instead of
 	 * its surface. */
+#ifndef __UBPORTS__
 	SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION , "0");
+#endif
 
 	/* Just on the offchance the audio subsystem started before the video system,
 	 * check whether any part of SDL has been initialised before getting here.
@@ -652,7 +654,11 @@ const char *VideoDriver_SDL::Start(const char * const *parm)
 
 	MarkWholeScreenDirty();
 
+#ifdef __UBPORTS__
+        _draw_threaded = false;
+#else
 	_draw_threaded = GetDriverParam(parm, "no_threads") == nullptr && GetDriverParam(parm, "no_thread") == nullptr;
+#endif
 
 	SDL_StopTextInput();
 	this->edit_box_focused = false;
