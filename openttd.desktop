@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=openttd
+Exec=openttd
+Icon=media/openttd.svg
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
