@@ -5,4 +5,4 @@
 
 - Two-finger cancel action does not work when confirmation dialog is disabled.
 
-- Cloud save is broken.
+- New road types menu is not shown when building roads (Rattroads grf, Heqs Ratt grf).
