@@ -34,9 +34,6 @@
 #include "table/strings.h"
 
 #include "safeguards.h"
-#ifdef __UBPORTS__
-#include <SDL_android.h>
-#endif
 
 LoadCheckData _load_check_data;    ///< Data loaded from save during SL_LOAD_CHECK.
 
@@ -732,11 +729,6 @@ public:
 			case WID_SL_LOAD_NETWORK_BUTTON: {
 					char savePath[PATH_MAX];
 					FiosMakeSavegameName(savePath, NETWORK_SAVE_FILENAME, lastof(savePath));
-#ifdef __UBPORTS__
-					if (!SDL_ANDROID_CloudLoad(savePath, NULL, "OpenTTD")) {
-						break;
-					}
-#endif
 					_file_to_saveload.SetMode(FIOS_TYPE_FILE);
 					_file_to_saveload.SetName(savePath);
 					_file_to_saveload.SetTitle("Network Save");

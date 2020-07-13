@@ -42,10 +42,6 @@
 
 #include "safeguards.h"
 
-#ifdef __UBPORTS__
-#include <SDL_android.h>
-#endif
-
 enum { MIN_BUTTON_SIZE = 10, MAX_BUTTON_SIZE = 100 };
 
 static const StringID _driveside_dropdown[] = {
@@ -504,9 +500,6 @@ struct GameOptionsWindow : Window {
 				_ini_blitter = stredup("8bpp-optimized");
 				_exit_game = true;
 				_restart_game = true;
-				#ifdef __UBPORTS__
-				SDL_ANDROID_SetConfigOption(SDL_ANDROID_CONFIG_VIDEO_DEPTH_BPP, 16);
-				#endif
 				break;
 
 			case WID_GO_16BPP_BUTTON:
@@ -515,9 +508,6 @@ struct GameOptionsWindow : Window {
 				_ini_blitter = stredup("16bpp-simple");
 				_exit_game = true;
 				_restart_game = true;
-				#ifdef __UBPORTS__
-				SDL_ANDROID_SetConfigOption(SDL_ANDROID_CONFIG_VIDEO_DEPTH_BPP, 16);
-				#endif
 				break;
 
 			case WID_GO_32BPP_BUTTON:
@@ -526,9 +516,6 @@ struct GameOptionsWindow : Window {
 				_ini_blitter = stredup("32bpp-anim");
 				_exit_game = true;
 				_restart_game = true;
-				#ifdef __UBPORTS__
-				SDL_ANDROID_SetConfigOption(SDL_ANDROID_CONFIG_VIDEO_DEPTH_BPP, 24);
-				#endif
 				break;
 
 			default: {

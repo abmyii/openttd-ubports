@@ -74,7 +74,6 @@
 #include "safeguards.h"
 #ifdef __UBPORTS__
 #include <unistd.h>
-#include <SDL_android.h>
 #endif
 #include <limits.h>
 #include <string>
@@ -1189,24 +1188,6 @@ void SwitchToMode(SwitchMode new_mode)
 				ShowErrorMessage(STR_JUST_RAW_STRING, INVALID_STRING_ID, WL_ERROR);
 			} else {
 				DeleteWindowById(WC_SAVELOAD, 0);
-#ifdef __UBPORTS__
-				if (_settings_client.gui.save_to_network) {
-					char screenshotFile[PATH_MAX] = "";
-					const char* lastPart = strrchr(_file_to_saveload.name, PATHSEPCHAR);
-					if (!lastPart) {
-						lastPart = _file_to_saveload.name;
-					} else {
-						lastPart++;
-					}
-					MakeScreenshot(SC_VIEWPORT, NETWORK_SAVE_SCREENSHOT_FILE);
-					FioFindFullPath(screenshotFile, lastof(screenshotFile), SCREENSHOT_DIR, NETWORK_SAVE_SCREENSHOT_FILE_PNG);
-					uint64_t playedTime = abs(_date - DAYS_TILL(_settings_newgame.game_creation.starting_year)) * 1000;
-					int ret = SDL_ANDROID_CloudSave(_file_to_saveload.name, lastPart, "OpenTTD", lastPart, screenshotFile, playedTime);
-					if (_settings_client.gui.save_to_network == 2) {
-						_settings_client.gui.save_to_network = ret ? 1 : 0;
-					}
-				}
-#endif
 			}
 			break;
 

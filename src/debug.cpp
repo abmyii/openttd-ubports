@@ -14,9 +14,6 @@
 #include "string_func.h"
 #include "fileio_func.h"
 #include "settings_type.h"
-#ifdef __UBPORTS__
-#include <android/log.h>
-#endif
 
 #if defined(_WIN32)
 #include "os/windows/win32.h"
@@ -110,9 +107,6 @@ char *DumpDebugFacilityNames(char *buf, char *last)
  */
 static void debug_print(const char *dbg, const char *buf)
 {
-#ifdef __UBPORTS__
-	__android_log_print(ANDROID_LOG_INFO, "OpenTTD", "[%s] %s", dbg, buf);
-#endif
 	if (_debug_socket != INVALID_SOCKET) {
 		char buf2[1024 + 32];
 

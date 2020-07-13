@@ -35,7 +35,7 @@
 #include "safeguards.h"
 
 #ifdef __UBPORTS__
-#include <SDL_screenkeyboard.h>
+//#include <SDL_screenkeyboard.h>
 #endif
 
 /** Method to open the OSK. */
@@ -800,12 +800,12 @@ void QueryString::HandleEditBox(Window *w, int wid)
 		if (w->window_class == WC_OSK) w->InvalidateData();
 	}
 #ifdef __UBPORTS__
-	if (SDL_IsScreenKeyboardShown(NULL)) {
-		if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
-			this->text.Assign(_android_text_input);
-			w->OnEditboxChanged(wid);
-		}
-	}
+	//if (SDL_IsScreenKeyboardShown(NULL)) {
+	//	if (SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input)) == SDL_ANDROID_TEXTINPUT_ASYNC_FINISHED) {
+	//		this->text.Assign(_android_text_input);
+	//		w->OnEditboxChanged(wid);
+	//	}
+	//}
 #endif
 }
 
@@ -991,9 +991,9 @@ void QueryString::ClickEditBox(Window *w, Point pt, int wid, int click_count, bo
 		ShowOnScreenKeyboard(w, wid);
 	}
 #ifdef __UBPORTS__
-	strecpy(_android_text_input, this->text.buf, lastof(_android_text_input));
-	this->text.DeleteAll();
-	SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input));
+	//strecpy(_android_text_input, this->text.buf, lastof(_android_text_input));
+	//this->text.DeleteAll();
+	//SDL_ANDROID_GetScreenKeyboardTextInputAsync(_android_text_input, sizeof(_android_text_input));
 #endif
 }
 

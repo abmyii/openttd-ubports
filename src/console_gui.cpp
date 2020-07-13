@@ -29,7 +29,7 @@
 #include "safeguards.h"
 
 #ifdef __UBPORTS__
-#include <SDL_screenkeyboard.h>
+//#include <SDL_screenkeyboard.h>
 #endif
 
 static const uint ICON_HISTORY_SIZE       = 20;
@@ -458,9 +458,9 @@ void IConsoleSwitch()
 					}
 				}
 				strecat(buf, "\n\n\n\n\n\n\n\n", lastof(buf)); // Move all text to top
-				SDL_ANDROID_SetScreenKeyboardHintMesage(buf);
+				//SDL_ANDROID_SetScreenKeyboardHintMesage(buf);
 				char text[512] = "";
-				SDL_ANDROID_GetScreenKeyboardTextInput(text, sizeof(text) - 1); /* Invoke Android built-in screen keyboard */
+				//SDL_ANDROID_GetScreenKeyboardTextInput(text, sizeof(text) - 1); /* Invoke Android built-in screen keyboard */
 				IConsoleCmdExec(text);
 			}
 #else

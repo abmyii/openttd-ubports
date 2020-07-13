@@ -14,10 +14,6 @@
 
 #include "stdafx.h"
 
-#ifdef __UBPORTS__
-#include <SDL_android.h>
-#endif
-
 #include "tutorial_gui.h"
 #include "debug.h"
 #include "strings_func.h"
@@ -89,9 +85,6 @@ void OpenExternTutorialVideo(VideoLink_t *tutorial)
 	if (!link) {
 		return;
 	}
-#ifdef __UBPORTS__
-	SDL_ANDROID_OpenExternalWebBrowser(link);
-#else
 	char cmd[PATH_MAX] =
 #ifdef WIN32
 		"start ";
@@ -100,7 +93,6 @@ void OpenExternTutorialVideo(VideoLink_t *tutorial)
 #endif
 	strcat(cmd, link);
 	system(cmd);
-#endif
 }
 
 static const NWidgetPart _nested_tutorial_widgets[] = {
