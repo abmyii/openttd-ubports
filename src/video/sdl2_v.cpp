@@ -157,7 +157,11 @@ static void DrawSurfaceToScreen()
 	PerformanceMeasurer framerate(PFE_VIDEO);
 
 	int n = _num_dirty_rects;
+#ifdef __UBPORTS__
+	if (n == 0 && !_left_button_down) return; // We have to update the screen regularly to receive mouse_up event on Ubports
+#else
 	if (n == 0) return;
+#endif
 
 	_num_dirty_rects = 0;
 
@@ -262,11 +266,16 @@ bool VideoDriver_SDL::CreateMainSurface(uint w, uint h, bool resize)
 	if (_sdl_window == nullptr) {
 		Uint32 flags = SDL_WINDOW_SHOWN;
 
+#ifndef __UBPORTS__
 		if (_fullscreen) {
 			flags |= SDL_WINDOW_FULLSCREEN;
 		} else {
 			flags |= SDL_WINDOW_RESIZABLE;
 		}
+#else
+		// FIXME: Still get a blank screen at times
+		flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+#endif
 
 		_sdl_window = SDL_CreateWindow(
 			caption,
@@ -295,7 +304,9 @@ bool VideoDriver_SDL::CreateMainSurface(uint w, uint h, bool resize)
 		}
 	}
 
+#ifndef __UBPORTS__
 	if (resize) SDL_SetWindowSize(_sdl_window, w, h);
+#endif
 
 	newscreen = SDL_GetWindowSurface(_sdl_window);
 	if (newscreen == NULL) {
@@ -508,13 +519,17 @@ int VideoDriver_SDL::PollEvent()
 	if (!SDL_PollEvent(&ev)) return -2;
 
 	switch (ev.type) {
-		case SDL_MOUSEMOTION:
-			if (_cursor.UpdateCursorPosition(ev.motion.x, ev.motion.y, true)) {
-				SDL_WarpMouseInWindow(_sdl_window, _cursor.pos.x, _cursor.pos.y);
+#ifdef __UBPORTS__
+		// Handle multigesture before fingermotion, as they conflict (since fingermotion doesn't break)
+		case SDL_MULTIGESTURE:
+			if(fabs(ev.mgesture.dDist) > 0.003) {  // pinch amount (distance between fingers)
+				_cursor.wheel += (ev.mgesture.dDist < 0) ? 1 : -1;
+				_cursor.pos.x = ev.mgesture.x * _screen.width;
+				_cursor.pos.y = ev.mgesture.y * _screen.height;
+				_cursor.UpdateCursorPosition(_cursor.pos.x, _cursor.pos.y, false);
 			}
-			HandleMouseEvents();
 			break;
-
+#else
 		case SDL_MOUSEWHEEL:
 			if (ev.wheel.y > 0) {
 				_cursor.wheel--;
@@ -522,8 +537,28 @@ int VideoDriver_SDL::PollEvent()
 				_cursor.wheel++;
 			}
 			break;
+#endif
 
+		case SDL_FINGERMOTION:
+		case SDL_MOUSEMOTION:
+#ifdef __UBPORTS__ // No mouse warping on Ubports, mouse strictly follows finger
+			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
+#else
+			if (_cursor.UpdateCursorPosition(ev.motion.x, ev.motion.y, true)) {
+				SDL_WarpMouseInWindow(_sdl_window, _cursor.pos.x, _cursor.pos.y);
+			}
+#endif
+			HandleMouseEvents();
+			//break;
+
+		case SDL_FINGERDOWN:
 		case SDL_MOUSEBUTTONDOWN:
+			SDL_Log("Finger: %"SDL_PRIs64" down - x: %f, y: %f",
+				ev.tfinger.fingerId,ev.tfinger.x,ev.tfinger.y);
+#ifdef __UBPORTS__
+			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
+#endif
+
 			if (_rightclick_emulate && SDL_GetModState() & KMOD_CTRL) {
 				ev.button.button = SDL_BUTTON_RIGHT;
 			}
@@ -536,6 +571,10 @@ int VideoDriver_SDL::PollEvent()
 				case SDL_BUTTON_RIGHT:
 					_right_button_down = true;
 					_right_button_clicked = true;
+#ifdef __UBPORTS__
+					_right_button_down_pos.x = ev.motion.x;
+					_right_button_down_pos.y = ev.motion.y;
+#endif
 					break;
 
 				default: break;
@@ -543,7 +582,14 @@ int VideoDriver_SDL::PollEvent()
 			HandleMouseEvents();
 			break;
 
+		case SDL_FINGERUP:
 		case SDL_MOUSEBUTTONUP:
+			SDL_Log("Finger: %"SDL_PRIs64" up - x: %f, y: %f",
+				ev.tfinger.fingerId,ev.tfinger.x,ev.tfinger.y);
+#ifdef __UBPORTS__
+			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
+#endif
+
 			if (_rightclick_emulate) {
 				_right_button_down = false;
 				_left_button_down = false;
@@ -586,8 +632,26 @@ int VideoDriver_SDL::PollEvent()
 					(keycode >= WKC_F1 && keycode <= WKC_F12) ||
 					!IsValidChar(character, CS_ALPHANUMERAL)) {
 					HandleKeypress(keycode, character);
+
+#ifdef __UBPORTS__
+					if (ev.key.keysym.sym == SDLK_LCTRL || ev.key.keysym.sym == SDLK_RCTRL)
+						_ctrl_pressed = true;
+					if (ev.key.keysym.sym == SDLK_LSHIFT || ev.key.keysym.sym == SDLK_RSHIFT)
+						_shift_pressed = true;
+#endif
 				}
 			}
+			break;
+
+		case SDL_KEYUP:
+#ifdef __UBPORTS__
+			if (ev.key.keysym.sym == SDLK_LCTRL || ev.key.keysym.sym == SDLK_RCTRL) {
+				_ctrl_pressed = false;
+			}
+			if (ev.key.keysym.sym == SDLK_LSHIFT || ev.key.keysym.sym == SDLK_RSHIFT) {
+				_shift_pressed = false;
+			}
+#endif
 			break;
 
 		case SDL_TEXTINPUT: {
@@ -608,7 +672,8 @@ int VideoDriver_SDL::PollEvent()
 			if (ev.window.event == SDL_WINDOWEVENT_EXPOSED) {
 				// Force a redraw of the entire screen.
 				_num_dirty_rects = MAX_DIRTY_RECTS + 1;
-			} else if (ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+			}
+			else if (ev.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
 				int w = max(ev.window.data1, 64);
 				int h = max(ev.window.data2, 64);
 				CreateMainSurface(w, h, w != ev.window.data1 || h != ev.window.data2);
@@ -654,10 +719,9 @@ const char *VideoDriver_SDL::Start(const char * const *parm)
 
 	MarkWholeScreenDirty();
 
+	_draw_threaded = GetDriverParam(parm, "no_threads") == nullptr && GetDriverParam(parm, "no_thread") == nullptr;
 #ifdef __UBPORTS__
         _draw_threaded = false;
-#else
-	_draw_threaded = GetDriverParam(parm, "no_threads") == nullptr && GetDriverParam(parm, "no_thread") == nullptr;
 #endif
 
 	SDL_StopTextInput();
@@ -748,8 +812,10 @@ void VideoDriver_SDL::MainLoop()
 
 			bool old_ctrl_pressed = _ctrl_pressed;
 
+#ifndef __UBPORTS__
 			_ctrl_pressed  = !!(mod & KMOD_CTRL);
 			_shift_pressed = !!(mod & KMOD_SHIFT);
+#endif
 
 			/* determine which directional keys are down */
 			_dirkeys =
