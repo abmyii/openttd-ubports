@@ -1,0 +1,15 @@
+{
+    "name": "openttd.abmyii",
+    "description": "OpenTTD is an open source simulation game based upon Transport Tycoon Deluxe",
+    "architecture": "@CLICK_ARCH@",
+    "title": "OpenTTD",
+    "hooks": {
+        "openttd": {
+            "apparmor": "openttd.apparmor",
+            "desktop":  "openttd.desktop"
+        }
+    },
+    "version": "20200708",
+    "maintainer": "Abdurrahmaan Iqbal <abdurrahmaaniqbal@hotmail.com>",
+    "framework" : "ubuntu-sdk-16.04"
+}
