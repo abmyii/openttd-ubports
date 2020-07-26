@@ -4,10 +4,6 @@
         "networking",
         "connectivity",
         "keep-display-on",
-        "music_files_read",
-        "picture_files",
-        "content_exchange",
-        "content_exchange_source"
     ],
     "policy_version": 16.04
 }

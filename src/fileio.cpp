@@ -1072,10 +1072,14 @@ void DetermineBasePaths(const char *exe)
 
 	if (homedir != nullptr) {
 		ValidateString(homedir);
+#if defined(__UBPORTS__)
+		_searchpaths[SP_PERSONAL_DIR] = stredup(homedir);
+#else
 		seprintf(tmp, lastof(tmp), "%s" PATHSEP "%s", homedir, PERSONAL_DIR);
 		AppendPathSeparator(tmp, lastof(tmp));
 
 		_searchpaths[SP_PERSONAL_DIR] = stredup(tmp);
+#endif
 		free(homedir);
 	} else {
 		_searchpaths[SP_PERSONAL_DIR] = nullptr;
@@ -1111,6 +1115,21 @@ void DetermineBasePaths(const char *exe)
 			DEBUG(misc, 0, "Failed to return to working directory!");
 		}
 	}
+
+#if defined(__UBPORTS__)
+	char *token, *str, *tofree;
+	tofree = str = stredup(_searchpaths[SP_WORKING_DIR]);  // We own str's memory now.
+
+	// Get third token (click name)
+	for (int i = 0; i <= 3; i++)
+		token = strsep(&str, "/");
+
+	seprintf(tmp, lastof(tmp), "%s/.local/share/%s/", _searchpaths[SP_PERSONAL_DIR], token);
+	_searchpaths[SP_PERSONAL_DIR] = stredup(tmp);
+	printf("Personal: %s\n", _searchpaths[SP_PERSONAL_DIR]);
+
+	free(tofree);
+#endif
 
 #if !defined(GLOBAL_DATA_DIR)
 	_searchpaths[SP_INSTALLATION_DIR] = nullptr;
@@ -1212,7 +1231,11 @@ void DeterminePaths(const char *exe)
 	} else
 #endif
 	{
+#if defined(__UBPORTS__)
+		_personal_dir = _searchpaths[SP_PERSONAL_DIR];
+#else
 		_personal_dir = config_dir;
+#endif
 	}
 
 	/* Make the necessary folders */
