@@ -520,14 +520,18 @@ int VideoDriver_SDL::PollEvent()
 
 	switch (ev.type) {
 #ifdef __UBPORTS__
-		// Handle multigesture before fingermotion, as they conflict (since fingermotion doesn't break)
 		case SDL_MULTIGESTURE:
-			if(fabs(ev.mgesture.dDist) > 0.003) {  // pinch amount (distance between fingers)
+			SDL_Log("GESTURE <Event: %d, dDist: %f>", ev.type, ev.mgesture.dDist);
+
+			SDL_GetMouseState(&_cursor.pos.x, &_cursor.pos.y);
+			_cursor.pos.x = ev.mgesture.x * _screen.width;
+			_cursor.pos.y = ev.mgesture.y * _screen.height;
+
+			if(fabs(ev.mgesture.dDist) > 0.004) {  // pinch amount (distance between fingers)
 				_cursor.wheel += (ev.mgesture.dDist < 0) ? 1 : -1;
-				_cursor.pos.x = ev.mgesture.x * _screen.width;
-				_cursor.pos.y = ev.mgesture.y * _screen.height;
-				_cursor.UpdateCursorPosition(_cursor.pos.x, _cursor.pos.y, false);
 			}
+
+			HandleMouseEvents();
 			break;
 #else
 		case SDL_MOUSEWHEEL:
@@ -543,18 +547,23 @@ int VideoDriver_SDL::PollEvent()
 		case SDL_MOUSEMOTION:
 #ifdef __UBPORTS__ // No mouse warping on Ubports, mouse strictly follows finger
 			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
+			// FIXME: Add 25,25 (or TILESIZE,TILESIZE) offset to cursor on mobile
+			//if (_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true)) {
+			//	SDL_WarpMouseInWindow(_sdl_window, _cursor.pos.x, _cursor.pos.y);
+			//}
 #else
 			if (_cursor.UpdateCursorPosition(ev.motion.x, ev.motion.y, true)) {
 				SDL_WarpMouseInWindow(_sdl_window, _cursor.pos.x, _cursor.pos.y);
 			}
 #endif
 			HandleMouseEvents();
-			//break;
+			break;
 
 		case SDL_FINGERDOWN:
 		case SDL_MOUSEBUTTONDOWN:
 			SDL_Log("Finger: %"SDL_PRIs64" down - x: %f, y: %f",
 				ev.tfinger.fingerId,ev.tfinger.x,ev.tfinger.y);
+
 #ifdef __UBPORTS__
 			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
 #endif
@@ -586,6 +595,7 @@ int VideoDriver_SDL::PollEvent()
 		case SDL_MOUSEBUTTONUP:
 			SDL_Log("Finger: %"SDL_PRIs64" up - x: %f, y: %f",
 				ev.tfinger.fingerId,ev.tfinger.x,ev.tfinger.y);
+
 #ifdef __UBPORTS__
 			_cursor.UpdateCursorPosition(ev.tfinger.x * _screen.width, ev.tfinger.y * _screen.height, true);
 #endif
