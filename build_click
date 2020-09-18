@@ -1,0 +1,9 @@
+Build openttd-ubports (in a libertine container)
+`./configure CFLAGS='-D__UBPORTS__' CXXFLAGS='-D__UBPORTS__' --prefix=$PWD/install`
+`make -j4`
+`make install`
+
+Copy openttd.apparmor, openttd.desktop and manifest.json.in into the bin folder
+Manually set the CLICK_ARCH in manifest.json.in and change it to manifest.json
+Run `click build .` (I did this outside of the container)
+`pkcon install-local --allow-untrusted openttd.abmyii_20200708_armhf.click`
