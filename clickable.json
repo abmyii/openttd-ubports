@@ -1,0 +1,25 @@
+{
+  "clickable_minimum_required": "6.17.1",
+  "kill": "openttd",
+  "builder": "custom",
+  "build": "${ROOT}/build-ubports.sh",
+  "build_dir": "${ROOT}/build",
+  "dependencies_target": [
+    "libfluidsynth-dev",
+    "libfontconfig1-dev",
+    "libfontconfig1-dev",
+    "libfreetype6-dev",
+    "liballegro5-dev",
+    "liblzo2-dev",
+    "liblzma-dev",
+    "libsdl2-dev"
+  ],
+  "install_data": {
+    "${ROOT}/manifest.json": "${INSTALL_DIR}",
+    "${ROOT}/openttd.apparmor": "${INSTALL_DIR}",
+    "${ROOT}/openttd.desktop": "${INSTALL_DIR}"
+  },
+  "install_lib": [
+    "/usr/lib/aarch64-linux-gnu/libSDL2-2.0.so*"
+  ]
+}

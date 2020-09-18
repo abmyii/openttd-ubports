@@ -53,3 +53,5 @@ src/os/windows/ottdres.rc
 !/config.lib
 !*.in
 *.tmp
+
+/.clickable/
