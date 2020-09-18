@@ -20,6 +20,8 @@
     "${ROOT}/openttd.desktop": "${INSTALL_DIR}"
   },
   "install_lib": [
+    "/usr/lib/aarch64-linux-gnu/libsndio.so*",
+    "/usr/lib/aarch64-linux-gnu/libfluidsynth.so*",
     "/usr/lib/aarch64-linux-gnu/libSDL2-2.0.so*"
   ]
 }

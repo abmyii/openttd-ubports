@@ -3,7 +3,7 @@
         "audio",
         "networking",
         "connectivity",
-        "keep-display-on",
+        "keep-display-on"
     ],
     "policy_version": 16.04
 }
